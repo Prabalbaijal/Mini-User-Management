@@ -78,6 +78,7 @@ router.put("/profile", updateProfile);
  *       200:
  *         description: Password changed successfully
  */
+router.put("/change-password", changePassword);
 
 
 export default router;

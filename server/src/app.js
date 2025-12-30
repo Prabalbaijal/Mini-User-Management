@@ -10,17 +10,20 @@ import swaggerSpec from "./config/swagger.js";
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors());
+app.options("*", cors());
+
 app.use(express.json());
 
-//  Swagger route
+// Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 
-// global error handler
+// Error handler LAST
 app.use(errorMiddleware);
 
 export default app;
