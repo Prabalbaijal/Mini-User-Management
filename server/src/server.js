@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-console.log("ENV FILE CHECK:", process.env.CLIENT_URL);
+
 
 import app from "./app.js";
 import connectDB from "./config/db.js";

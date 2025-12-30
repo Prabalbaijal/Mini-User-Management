@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { signup } from "../features/auth/authSlice";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Signup() {
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((s) => s.auth);
+  const navigate = useNavigate();
+  const { loading, error, user } = useSelector((s) => s.auth);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -17,8 +19,13 @@ export default function Signup() {
   });
 
   const submit = () => {
+    if (!form.fullName || !form.email || !form.password) {
+      toast.error("All fields are required");
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -28,13 +35,32 @@ export default function Signup() {
         email: form.email,
         password: form.password
       })
-    );
+    )
+      .unwrap()
+      .then(() => {
+        toast.success("Account created successfully");
+      })
+      .catch((err) => {
+        toast.error(err || "Signup failed");
+      });
   };
 
+  //  Redirect after successful signup
+  useEffect(() => {
+    if (user) {
+      navigate("/profile");
+    }
+  }, [user, navigate]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-card p-8 rounded-xl w-full max-w-md shadow-xl">
-        <h2 className="text-2xl font-semibold mb-6">Create Account</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-black">
+      <div className="bg-[rgb(var(--card))] p-8 rounded-2xl w-full max-w-md shadow-2xl border border-white/10">
+        <h2 className="text-3xl font-semibold mb-2">
+          Create Account
+        </h2>
+        <p className="text-sm text-gray-400 mb-6">
+          Join the platform
+        </p>
 
         <div className="space-y-4">
           <Input
@@ -73,23 +99,19 @@ export default function Signup() {
           />
         </div>
 
-        {error && (
-          <p className="text-red-400 text-sm mt-3">{error}</p>
-        )}
-
         <Button
-          className="w-full mt-6"
+          className="w-full mt-8 py-2.5 bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition cursor-pointer"
           onClick={submit}
           disabled={loading}
         >
           {loading ? "Creating account..." : "Sign Up"}
         </Button>
 
-        <p className="text-sm text-gray-400 mt-4 text-center">
+        <p className="text-sm text-gray-400 mt-6 text-center">
           Already have an account?{" "}
           <Link
-            to="/"
-            className="text-accent hover:underline"
+            to="/login"
+            className="text-indigo-400 hover:underline"
           >
             Login
           </Link>

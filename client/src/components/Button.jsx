@@ -11,7 +11,7 @@ export default function Button({ children, variant = "primary", ...props }) {
   return (
     <button
       {...props}
-      className={`px-4 py-2 rounded-md transition ${styles[variant]} bg-blue-400`}
+      className={`px-4 py-2 rounded-md transition ${styles[variant]} bg-blue-400 cursor-pointer`}
     >
       {children}
     </button>

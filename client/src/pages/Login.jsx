@@ -4,10 +4,11 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const dispatch = useDispatch();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const { loading, error, user } = useSelector((s) => s.auth);
 
   const [form, setForm] = useState({
@@ -15,23 +16,39 @@ export default function Login() {
     password: ""
   });
 
-  const submit = () => dispatch(login(form));
+  const submit = () => {
+    if (!form.email || !form.password) {
+      toast.error("Email and password are required");
+      return;
+    }
+
+    dispatch(login(form))
+      .unwrap()
+      .then(() => {
+        toast.success("Logged in successfully");
+      })
+      .catch((err) => {
+        toast.error(err || "Login failed");
+      });
+  };
+
   useEffect(() => {
     if (user) {
       if (user.role === "admin") {
         navigate("/admin/users");
       } else {
-        navigate("/profile"); 
+        navigate("/profile");
       }
     }
   }, [user, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-black">
-      <div className="w-full max-w-md rounded-2xl 
+      <div
+        className="w-full max-w-md rounded-2xl 
         bg-[rgb(var(--card))] 
-        p-8 shadow-2xl border border-white/10">
-
+        p-8 shadow-2xl border border-white/10"
+      >
         <h2 className="text-3xl font-semibold mb-2">
           Welcome Back
         </h2>
@@ -55,12 +72,7 @@ export default function Login() {
             }
           />
         </div>
-
-        {error && (
-          <p className="text-red-400 text-sm mt-4">{error}</p>
-        )}
-        <br></br>
-
+            <br></br>
         <Button
           onClick={submit}
           className="w-full mt-8 py-2.5 
@@ -71,6 +83,17 @@ export default function Login() {
         >
           {loading ? "Logging in..." : "Login"}
         </Button>
+        <p className="text-sm text-gray-400 mt-6 text-center">
+          Don’t have an account?{" "}
+          <span
+            onClick={() => navigate("/signup")}
+            className="text-indigo-400 hover:underline cursor-pointer"
+          >
+            
+            Sign up
+          </span>
+        </p>
+
       </div>
     </div>
   );

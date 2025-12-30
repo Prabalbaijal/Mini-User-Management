@@ -4,6 +4,7 @@ import api from "../api/axios";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { logout } from "../features/auth/authSlice";
+import toast from "react-hot-toast";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -20,10 +21,8 @@ export default function Profile() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [error, setError] = useState(null);
 
-  // Load profile
+  // Load profile from redux
   useEffect(() => {
     if (user) {
       setProfile({
@@ -34,34 +33,45 @@ export default function Profile() {
   }, [user]);
 
   const updateProfile = async () => {
+    if (!profile.fullName || !profile.email) {
+      toast.error("Full name and email are required");
+      return;
+    }
+
     try {
       setLoading(true);
-      setError(null);
-      setMessage(null);
-
-      const res = await api.put("/api/user/profile", profile);
-      setMessage("Profile updated successfully");
+      await api.put("/api/user/profile", profile);
+      toast.success("Profile updated successfully");
     } catch (err) {
-      setError(err.response?.data?.message || "Update failed");
+      toast.error(err.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
     }
   };
 
   const changePassword = async () => {
+    if (!passwords.oldPassword || !passwords.newPassword) {
+      toast.error("Both password fields are required");
+      return;
+    }
+
     try {
       setLoading(true);
-      setError(null);
-      setMessage(null);
-
       await api.put("/api/user/change-password", passwords);
-      setMessage("Password changed successfully");
+      toast.success("Password changed successfully");
       setPasswords({ oldPassword: "", newPassword: "" });
     } catch (err) {
-      setError(err.response?.data?.message || "Password update failed");
+      toast.error(
+        err.response?.data?.message || "Password update failed"
+      );
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Logged out successfully");
   };
 
   return (
@@ -72,19 +82,21 @@ export default function Profile() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-semibold">My Profile</h1>
-            <p className="text-sm text-gray-400">
-              Manage your account information
+            <p className="text-gray-400 mt-1">
+              Welcome {user?.fullName}
             </p>
           </div>
 
-          <Button variant="ghost" onClick={() => dispatch(logout())}>
+          <Button variant="ghost" className="cursor-pointer" onClick={handleLogout}>
             Logout
           </Button>
         </div>
 
         {/* Profile Card */}
         <div className="rounded-2xl bg-[rgb(var(--card))] p-6 shadow-2xl border border-white/10">
-          <h2 className="text-xl font-medium mb-4">Profile Details</h2>
+          <h2 className="text-xl font-medium mb-4">
+            Profile Details
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Input
@@ -106,7 +118,7 @@ export default function Profile() {
 
           <Button
             onClick={updateProfile}
-            className="mt-6"
+            className="mt-6 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Saving..." : "Save Changes"}
@@ -115,7 +127,9 @@ export default function Profile() {
 
         {/* Password Card */}
         <div className="rounded-2xl bg-[rgb(var(--card))] p-6 shadow-2xl border border-white/10">
-          <h2 className="text-xl font-medium mb-4">Change Password</h2>
+          <h2 className="text-xl font-medium mb-4">
+            Change Password
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Input
@@ -145,20 +159,12 @@ export default function Profile() {
 
           <Button
             onClick={changePassword}
-            className="mt-6"
+            className="mt-6 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Updating..." : "Update Password"}
           </Button>
         </div>
-
-        {/* Alerts */}
-        {message && (
-          <div className="text-green-400 text-sm">{message}</div>
-        )}
-        {error && (
-          <div className="text-red-400 text-sm">{error}</div>
-        )}
       </div>
     </div>
   );
