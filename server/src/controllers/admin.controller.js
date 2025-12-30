@@ -1,4 +1,5 @@
 import User from "../models/User.model.js";
+import { successResponse } from "../utils/response.js";
 
 export const getAllUsers = async (req, res) => {
   const page = Number(req.query.page) || 1;
@@ -12,7 +13,11 @@ export const getAllUsers = async (req, res) => {
 
   const total = await User.countDocuments();
 
-  res.json({ users, total, page });
+  return successResponse(res, 200, "Users fetched", {
+    users,
+    total,
+    page
+  });
 };
 
 export const updateStatus = async (req, res) => {
@@ -20,5 +25,6 @@ export const updateStatus = async (req, res) => {
   const { status } = req.body;
 
   await User.findByIdAndUpdate(userId, { status });
-  res.json({ message: "Status updated" });
+
+  return successResponse(res, 200, "User status updated");
 };

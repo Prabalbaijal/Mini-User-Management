@@ -1,13 +1,21 @@
 import bcrypt from "bcryptjs";
 import User from "../models/User.model.js";
 import { generateToken } from "../utils/jwt.js";
+import { successResponse, errorResponse } from "../utils/response.js";
+import { isValidEmail, isStrongPassword } from "../utils/validators.js";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
 
+  if (!isValidEmail(email))
+    return errorResponse(res, 400, "Invalid email format");
+
+  if (!isStrongPassword(password))
+    return errorResponse(res, 400, "Password must be at least 6 characters");
+
   const exists = await User.findOne({ email });
   if (exists)
-    return res.status(400).json({ message: "Email already registered" });
+    return errorResponse(res, 400, "Email already registered");
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -19,7 +27,10 @@ export const signup = async (req, res) => {
 
   const token = generateToken(user._id);
 
-  res.status(201).json({ token, user });
+  return successResponse(res, 201, "User registered successfully", {
+    token,
+    user
+  });
 };
 
 export const login = async (req, res) => {
@@ -27,19 +38,23 @@ export const login = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (!user)
-    return res.status(401).json({ message: "Invalid credentials" });
+    return errorResponse(res, 401, "Invalid credentials");
 
   const match = await bcrypt.compare(password, user.password);
   if (!match)
-    return res.status(401).json({ message: "Invalid credentials" });
+    return errorResponse(res, 401, "Invalid credentials");
 
   user.lastLogin = new Date();
   await user.save();
 
   const token = generateToken(user._id);
-  res.json({ token, user });
+
+  return successResponse(res, 200, "Login successful", {
+    token,
+    user
+  });
 };
 
 export const currentUser = async (req, res) => {
-  res.json(req.user);
+  return successResponse(res, 200, "Current user fetched", req.user);
 };
