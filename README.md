@@ -29,9 +29,10 @@ The system demonstrates clean backend architecture, secure APIs, modern frontend
 - **react-hot-toast**
 
 ### Deployment
-- **Backend:** Render / Railway
-- **Frontend:** Vercel / Netlify
+- **Backend:** https://mini-user-management-jl1i.onrender.com
+- **Frontend:** https://mini-user-management-odg9.vercel.app
 - **Database:** MongoDB Atlas
+- **API Documentation:** https://mini-user-management-jl1i.onrender.com/api-docs/
 
 ---
 
@@ -184,7 +185,7 @@ http://localhost:5173
 ## API Documentation
 
 Swagger UI available at:
-
+https://mini-user-management-jl1i.onrender.com/api-docs/
 ```
 /api-docs
 ```
