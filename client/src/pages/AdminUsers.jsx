@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import Button from "../components/Button";
+import Navbar from "../components/Navbar";
+
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -49,6 +51,7 @@ export default function AdminUsers() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black p-6">
+     <Navbar/>
       <div className="max-w-6xl mx-auto">
 
         <h1 className="text-3xl font-semibold mb-6">
